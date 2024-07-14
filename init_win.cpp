@@ -36,7 +36,6 @@ void init_piece() {
 
 // initializing the chess board
 void init_board() {
-    refresh();
     // giving the board background
     wbkgd(board, COLOR_PAIR(DGREYBG_PAIR));
     wattron(board, COLOR_PAIR(WOG_PAIR));
@@ -56,7 +55,8 @@ void init_board() {
         const int temp = (i % 2 ? 1 : 0);
         for (size_t j = 0; j < 4; j++) {
             for (size_t k = 1; k < 6; k++) {
-                write(board,LGREYBG_PAIR,(i * 5) + k,(j * 20) + (temp * 10) + 2,"██████████");
+                write(board, LGREYBG_PAIR, (i * 5) + k,
+                      (j * 20) + (temp * 10) + 2, "██████████");
             }
         }
     }
@@ -82,6 +82,42 @@ void init_info() {
     box(info, 0, 0);
     wrefresh(info);
     wattroff(info, COLOR_PAIR(WOG_PAIR));
+    write(info, BOTW_PAIR, 7, 23, "                    ");
+    write(info, BOTW_PAIR, 8, 23, "  White Score :    ");
+    write(info, BOTW_PAIR, 9, 23, "                    ");
+    write(info, WOB_PAIR, 11, 23, "                    ");
+    write(info, WOB_PAIR, 12, 23, "  Black Score :    ");
+    write(info, WOB_PAIR, 13, 23, "                    ");
+    write(info, WOB_PAIR, 12, 41, "  ");
+    write(info, BOTW_PAIR, 8, 41, "  ");
+}
+
+// initializing the info windows
+void init_title() {
+    // setting background
+    wbkgd(title, COLOR_PAIR(TWBG_PAIR));
+    wattron(title, COLOR_PAIR(BOTW_PAIR));
+    // setting borders
+    box(title, 0, 0);
+    wrefresh(title);
+    write(title, BOTW_PAIR, 1, 3, " CCC    H  H    EEEE     SSS      SSS  ");
+    write(title, BOTW_PAIR, 2, 3, "C       H  H    E       S        S     ");
+    write(title, BOTW_PAIR, 3, 3, "C       HHHH    EEE      SSS      SSS  ");
+    write(title, BOTW_PAIR, 4, 3, "C       H  H    E           S        S ");
+    write(title, BOTW_PAIR, 5, 3, " CCC    H  H    EEEE    SSSS     SSSS  ");
+    wattroff(title, COLOR_PAIR(BOTW_PAIR));
+}
+
+// initializing the info windows
+void init_inft() {
+    // setting background
+    wbkgd(info_title, COLOR_PAIR(TWBG_PAIR));
+    wattron(info_title, COLOR_PAIR(BOTW_PAIR));
+    // setting borders
+    box(info_title, 0, 0);
+    wrefresh(info_title);
+    write(info_title, BOTW_PAIR, 1, 20, "INFO");
+    wattroff(info_title, COLOR_PAIR(BOTW_PAIR));
 }
 
 void init_win() {
@@ -90,10 +126,12 @@ void init_win() {
     refresh();
 
     // calling function to initialize all three windows
+    init_title();
     init_board();
     init_piece();
     init_input();
     init_info();
+    init_inft();
 
     // giving value null aka '-' to other part of the map
     // where there are no pieces
@@ -103,5 +141,4 @@ void init_win() {
             map[i][j][1] = '-';
         }
     }
-
 }
