@@ -1,4 +1,3 @@
-
 #include <ncurses.h>
 #include "init_colours.h"
 #include "main.h"
@@ -83,14 +82,9 @@ void init_info() {
     init_bkg_brdr(info);
 
     wattroff(info, COLOR_PAIR(WOG_PAIR));
-    write(info, BOTW_PAIR, 7, 23, "                    ");
-    write(info, BOTW_PAIR, 8, 23, "  White Score :    ");
-    write(info, BOTW_PAIR, 9, 23, "                    ");
-    write(info, WOB_PAIR, 11, 23, "                    ");
-    write(info, WOB_PAIR, 12, 23, "  Black Score :    ");
-    write(info, WOB_PAIR, 13, 23, "                    ");
-    write(info, WOB_PAIR, 12, 41, "  ");
-    write(info, BOTW_PAIR, 8, 41, "  ");
+    write(info, WOW_PAIR, 12, 23, "                    ");
+    write(info, WOW_PAIR, 13, 23, "        DRAW        ");
+    write(info, WOW_PAIR, 14, 23, "                    ");
 }
 
 // initializing the info windows

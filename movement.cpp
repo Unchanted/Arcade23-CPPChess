@@ -7,6 +7,7 @@
 #include "piece.h"
 #include "score.h"
 #include "write.h"
+#include "history.h"
 
 void movement();
 void ask_cordinates(int y, int x, char* cord);
@@ -37,21 +38,28 @@ void movement() {
     curs_set(1);
     int turn_ln = 1;
     int turn_no = 1;
+    time_t now = time(0);
+    tm* start_time = localtime(&now) ;
     while (1) {
+        
         if (refresh_turn() == 'q') {
             break;
         }
+        
         // displaying current player turn on the info board
         write(info, get_turn_col(current_turn), 1, 33, "          ");
         write(info, get_turn_col(current_turn), 2, 33, "   TURN   ");
         write(info, get_turn_col(current_turn), 3, 33, "          ");
+        
         // asking which puiece he wanna move
         write(input, WOG_PAIR, 1, 1, "Which piece do you wanna move");
         ask_cordinates(3, 1, from);
+        
         // checking if the piece is empty or not
         if (!check_empty(get_name(from), get_col(from))) {
             continue;
         }
+        
         // check if its the turn of the piece choose or not
         if (col_bool(get_col(from)) != current_turn) {
             write(input, WOR_PAIR, 7, 1, "Its not your turn");
@@ -64,31 +72,35 @@ void movement() {
 
         // if for wether the move was legal and sucessful or not
         if (move_piece(from, to)) {
+            
             // if for reprinting from line 1 if info board become full
             if (turn_ln > 22) {
                 turn_ln = 1;
             }
+            
             // writing the currwent move in the info board
-            write(info, WOG_PAIR, turn_ln, 2, "%d. %s %s → %s ", turn_no,
-                  return_char(get_name(to), current_turn).c_str(), from, to);
+            write_hstr(start_time, turn_ln,turn_no,to,current_turn,from);
+            
             // updating the score
             if (score('w') > 0) {
-                write(info, BOTW_PAIR, 11, 23, "                    ");
-                write(info, BOTW_PAIR, 12, 23, " WHITE WINNING : +%d ",
+                write(info, BOTW_PAIR, 12, 23, "                    ");
+                write(info, BOTW_PAIR, 13, 23, " WHITE WINNING : +%d ",
                       score('w'));
-                write(info, BOTW_PAIR, 13, 23, "                    ");
+                write(info, BOTW_PAIR, 14, 23, "                    ");
             } else if (score('b') > 0) {
-                write(info, WOB_PAIR, 11, 23, "                    ");
-                write(info, WOB_PAIR, 12, 23, " BLACK WINNING : +%d ",
+                write(info, WOB_PAIR, 12, 23, "                    ");
+                write(info, WOB_PAIR, 13, 23, " BLACK WINNING : +%d ",
                       score('b'));
-                write(info, WOB_PAIR, 13, 23, "                    ");
+                write(info, WOB_PAIR, 14, 23, "                    ");
             } else {
-                write(info, WOW_PAIR, 11, 23, "                    ");
-                write(info, WOW_PAIR, 12, 23, "        DRAW        ");
-                write(info, WOW_PAIR, 13, 23, "                    ");
+                write(info, WOW_PAIR, 12, 23, "                    ");
+                write(info, WOW_PAIR, 13, 23, "        DRAW        ");
+                write(info, WOW_PAIR, 14, 23, "                    ");
             }
+            
             // changing the turn colour
             current_turn = !current_turn;
+            
             // making current line increase
             turn_ln++;
             turn_no++;
