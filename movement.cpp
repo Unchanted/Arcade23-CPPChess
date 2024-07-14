@@ -10,7 +10,7 @@ void movement();
 void ask_cordinates(int y, int x, char* cord);
 
 char refresh_turn() {
-    write_input(WOG_PAIR, 9, 1, "Press enter to continue or q to quite");
+    write_input(WOG_PAIR, 10, 1, "Press enter to continue or q to quite");
     char choice[1];
     wattron(input, COLOR_PAIR(WOG_PAIR));
     mvwgetnstr(input, 11, 1, choice, 1);
@@ -40,9 +40,7 @@ void movement() {
         if (check_empty(get_name(from), get_col(from))) {
             continue;
         }
-        if (col_bool(get_col(from)) == current_turn) {
-            current_turn = !current_turn;
-        } else {
+        if (col_bool(get_col(from)) != current_turn) {
             write_input(WOR_PAIR, 7, 1, "Its not your turn");
             continue;
         }
@@ -50,7 +48,9 @@ void movement() {
 
         ask_cordinates(6, 1, to);
 
-        move_piece(from, to);
+        if (move_piece(from, to)) {
+            current_turn = !current_turn;
+        }
     }
 }
 
