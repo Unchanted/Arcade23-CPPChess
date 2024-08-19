@@ -6,19 +6,18 @@
 #include "../headers/write.h"
 using namespace std;
 
-void print_piece(int y, int x, char color, char piece);
-void remove_piece(int y, int x);
-
 // Function to determine the attribute based on mode and color
 int get_attribute(int y, int x, char color, char mode) {
-    if (mode == 'w') {
-        return (x + y) % 2 ? (color == 'w' ? WOG_PAIR : BOG_PAIR)
-                           : (color == 'w' ? WOW_PAIR : BOW_PAIR);
-    } else if (mode == 'h') {
-        return (x + y) % 2 ? (color == 'w' ? WODY_PAIR : BODY_PAIR)
-                           : (color == 'w' ? WOLY_PAIR : BOLY_PAIR);
+    switch (mode) {
+        case 'w':
+            return (x + y) % 2 ? (color == 'w' ? WOG_PAIR : BOG_PAIR)
+                               : (color == 'w' ? WOW_PAIR : BOW_PAIR);
+        case 'h':
+            return (x + y) % 2 ? (color == 'w' ? WODY_PAIR : BODY_PAIR)
+                               : (color == 'w' ? WOLY_PAIR : BOLY_PAIR);
+        default:
+            return 0;  // Default return to avoid undefined behavior
     }
-    return 0;  // Default return to avoid undefined behavior
 }
 
 // Function to print the piece
@@ -27,8 +26,9 @@ void print_piece(int y, int x, char color, char piece, char mode, bool up_map) {
     int atr = get_attribute(y, x, color, mode);
 
     // Write the piece string array which consists of five lines
+    const string* piece_lines = return_piece(piece);
     for (size_t i = 0; i < 5; i++) {
-        write(board, atr, y_axis(y) + i, x_axis(x), return_piece(piece)[i].c_str());
+        write(board, atr, y_axis(y) + i, x_axis(x), piece_lines[i].c_str());
     }
 
     wrefresh(board);
@@ -44,12 +44,13 @@ void print_piece(int y, int x, char color, char piece, char mode, bool up_map) {
 // in the main array map of pieces
 void remove_piece(int y, int x, char mode, bool up_map) {
     // Determine the attribute based on mode
-    int atr = mode == 'w' ? ((x + y) % 2 ? DGREYBG_PAIR : LGREYBG_PAIR)
-                          : ((x + y) % 2 ? DYBG_PAIR : LYBG_PAIR);
+    int atr = (x + y) % 2 ? (mode == 'w' ? DGREYBG_PAIR : DYBG_PAIR)
+                          : (mode == 'w' ? LGREYBG_PAIR : LYBG_PAIR);
 
     // Print the background consisting of five lines
+    const char* empty_line = "██████████";
     for (size_t i = 0; i < 5; i++) {
-        write(board, atr, y_axis(y) + i, x_axis(x), "██████████");
+        write(board, atr, y_axis(y) + i, x_axis(x), empty_line);
     }
 
     wrefresh(board);
