@@ -1,11 +1,11 @@
 #include <ncurses.h>
 #include <cmath>
-#include "calc.h"
-#include "init_colours.h"
-#include "main.h"
-#include "obs_rec.h"
-#include "piece_man.h"
-#include "write.h"
+#include "../headers/calc.h"
+#include "../headers/init_colours.h"
+#include "../headers/main.h"
+#include "../headers/obs_rec.h"
+#include "../headers/piece_man.h"
+#include "../headers/write.h"
 
 bool check_empty(char color, char name);
 bool check_same_col(char color1, char color2);
@@ -56,9 +56,9 @@ bool check_pawn(char from[], char to[]) {
                 write(input, WOGN_PAIR, 7, 1, "EN PASSANT move ");
                 // capturing or aka removing the side piece of the opposite col
                 if (map[y_cord(to) - 2][x_cord(to) - 1][1] == 'p') {
-                    remove_piece(y_cord(to) - 1, x_cord(to));
+                    remove_piece(y_cord(to) - 1, x_cord(to),'w',1);
                 } else if (map[y_cord(to)][x_cord(to) - 1][1] == 'p') {
-                    remove_piece(y_cord(to) + 1, x_cord(to));
+                    remove_piece(y_cord(to) + 1, x_cord(to),'w',1);
                 }
                 return true;
             }

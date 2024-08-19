@@ -1,5 +1,5 @@
-#include "main.h"
-#include "init_colours.h"
+#include "../headers/main.h"
+#include "../headers/init_colours.h"
 
 int x_axis(int x);
 int y_axis(int y);
