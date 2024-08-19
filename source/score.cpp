@@ -1,4 +1,3 @@
-    
 #include <cmath>
 #include "../headers/main.h"
 int get_score(char col) {
