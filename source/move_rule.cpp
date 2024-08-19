@@ -37,108 +37,79 @@ bool check_same_col(char color1, char color2) {
 
 // check wether the move is legal for a pawn
 bool check_pawn(char from[], char to[]) {
-    // for storing if it is the first move or not
-    // to check wether the last move was en passont or not
     static bool first_move;
-    // for storing the axis of the last en passont move
     static char en_passant[2];
-    bool promo;
-    int forward;
-    // if last move was enable us for en passont
-    if (first_move == true) {
-        first_move == false;
-        // check wether the current move is a valid
-        // en passont move or not
+    bool promo = false;
+    int forward = 1;
+
+    char color = get_col(from);
+    bool is_white = (color == 'w');
+
+    // Handle first move and en passant
+    if ((is_white && y_cord(from) == 7) || (!is_white && y_cord(from) == 2)) {
+        first_move = true;
+        en_passant[0] = to[0];
+        en_passant[1] = to[1];
+        forward = 2;
+    } else {
+        first_move = false;
+    }
+
+    // En passant logic
+    if (first_move) {
+        first_move = false;
         if (abs(y_cord(en_passant) - y_cord(to)) == 1 &&
-            x_cord(en_passant) == x_cord(to)) {
-            if (abs(x_cord(en_passant) - x_cord(from)) == 1 &&
-                y_cord(en_passant) == y_cord(from)) {
-                write(input, WOGN_PAIR, 7, 1, "EN PASSANT move ");
-                // capturing or aka removing the side piece of the opposite col
-                if (map[y_cord(to) - 2][x_cord(to) - 1][1] == 'p') {
-                    remove_piece(y_cord(to) - 1, x_cord(to),'w',1);
-                } else if (map[y_cord(to)][x_cord(to) - 1][1] == 'p') {
-                    remove_piece(y_cord(to) + 1, x_cord(to),'w',1);
-                }
-                return true;
-            }
+            x_cord(en_passant) == x_cord(to) &&
+            abs(x_cord(en_passant) - x_cord(from)) == 1 &&
+            y_cord(en_passant) == y_cord(from)) {
+            
+            write(input, WOGN_PAIR, 7, 1, "EN PASSANT move ");
+            int remove_y = (is_white) ? y_cord(to) - 1 : y_cord(to) + 1;
+            remove_piece(remove_y, x_cord(to), 'w', 1);
+            return true;
         }
     }
-    // pawn check rules for white colours piece
-    if (get_col(from) == 'w') {
-        // check wehter the its the first move or not
-        if (y_cord(from) == 7) {
-            // make en passont true for next move
-            first_move = true;
-            en_passant[0] = to[0];
-            en_passant[1] = to[1];
-            forward = 2;
-        } else {
-            first_move = false;
-            forward = 1;
-        }
-        // check if it is moving more than the allowed blocks forward
+
+    // Move legality check
+    if (is_white) {
         if (y_cord(from) - y_cord(to) > forward) {
             write(input, WOR_PAIR, 7, 1, "Can not move more than one piece");
             return false;
         }
-        // check if it have reac the end of the board
-        if (y_cord(to) == 1) {
-            write(input, WOGN_PAIR, 6, 1, "You can promote your pawn");
-            promo = true;
-        }
+        if (y_cord(to) == 1) promo = true;
     } else {
-        // check wehter the its the first move or not
-        if (y_cord(from) == 2) {
-            // make en passont true for next move
-            first_move = true;
-            en_passant[0] = to[0];
-            en_passant[1] = to[1];
-            forward = 2;
-        } else {
-            first_move = false;
-            forward = 1;
-        }
-        // check if it is moving more than the allowed blocks forward
         if (y_cord(to) - y_cord(from) > forward) {
             write(input, WOR_PAIR, 7, 1, "Can not move more than one piece");
             return false;
         }
-        // check if it have reac the end of the board
-        if (y_cord(to) == 8) {
-            write(input, WOGN_PAIR, 6, 1, "You can promote your pawn");
-            promo = true;
-        }
+        if (y_cord(to) == 8) promo = true;
     }
-    // check if it going straight or not
+
+    // Straight move
     if (x_cord(from) == x_cord(to)) {
-        // check if there is a piece or not
         if (get_col(to) != '-') {
             write(input, WOR_PAIR, 7, 1, "Can not attack from the front");
             return false;
         }
-        // checking if there is opposite colour piece
-    } else if (abs(x_cord(from) - x_cord(to)) > 1 || (get_col(to) == '-')) {
+    } else if (abs(x_cord(from) - x_cord(to)) > 1 || get_col(to) == '-') {
         write(input, WOR_PAIR, 7, 1, "Can not move here");
         return false;
     }
-    // checking if you can promote your pawn or not
-    if (promo == true) {
-        // asking ofr promotion piece
+
+    // Promotion logic
+    if (promo) {
         write(input, BOTW_PAIR, 7, 1, "Enter q r n or b");
         char choice[1];
         wattron(input, COLOR_PAIR(WOG_PAIR));
         mvwgetnstr(input, 9, 1, choice, 1);
-        // error handling ofr pormotion
-        while (choice[0] != 'q' && choice[0] != 'r' && choice[0] != 'n' &&
-               choice[0] != 'b') {
+
+        while (choice[0] != 'q' && choice[0] != 'r' && choice[0] != 'n' && choice[0] != 'b') {
             write(input, WOG_PAIR, 9, 1, "   ");
             write(input, WOR_PAIR, 8, 1, "Please enter correct piece");
             wattron(input, COLOR_PAIR(WOG_PAIR));
             mvwgetnstr(input, 9, 1, choice, 1);
         }
         wattroff(input, COLOR_PAIR(WOG_PAIR));
-        // updating piece for promotion in the map array
         map[y_cord(from) - 1][x_cord(from) - 1][1] = choice[0];
     }
     return true;
@@ -146,7 +117,6 @@ bool check_pawn(char from[], char to[]) {
 
 // checking if queen move is legal or not
 bool check_queen(char from[], char to[]) {
-    // as queen can go straight and diagnal
     if (!(check_rook(from, to) || check_bishop(from, to))) {
         write(input, WOR_PAIR, 7, 1, "QUEEN can not move in this way");
         return false;
@@ -157,11 +127,11 @@ bool check_queen(char from[], char to[]) {
 
 // check wether knight move is legal or not
 bool check_knight(char from[], char to[]) {
-    if (abs(y_cord(from) - y_cord(to)) < 1 ||
-        abs(x_cord(from) - x_cord(to)) < 1 ||
-        abs(y_cord(from) - y_cord(to)) > 2 ||
+    if (abs(y_cord(from) - y_cord(to)) > 2 ||
         abs(x_cord(from) - x_cord(to)) > 2 ||
-        abs(y_cord(from) - y_cord(to)) == abs(x_cord(from) - x_cord(to))) {
+        abs(y_cord(from) - y_cord(to)) == abs(x_cord(from) - x_cord(to)) ||
+        abs(y_cord(from) - y_cord(to)) == 0 ||
+        abs(x_cord(from) - x_cord(to)) == 0) {
         write(input, WOR_PAIR, 7, 1, "Knight can not move in this way");
         return false;
     }
@@ -183,46 +153,33 @@ bool check_rook(char from[], char to[]) {
         write(input, WOR_PAIR, 7, 1, "Rook can not move in this way");
         return false;
     }
-    if (x_cord(from) == x_cord(to) && y_cord(from) == y_cord(to)) {
-        write(input, WOR_PAIR, 7, 1, "Rook can not move in this way");
-        return false;
-    }
     return true;
 }
 
 // check wether king move is legal or not
 bool check_king(char from[], char to[]) {
-    if (abs(y_cord(from) - y_cord(to)) > 1 ||
-        abs(x_cord(from) - x_cord(to)) > 1) {
-        write(input, WOR_PAIR, 7, 1, "Knight can not move in this way");
+    if (abs(y_cord(from) - y_cord(to)) > 1 || abs(x_cord(from) - x_cord(to)) > 1) {
+        write(input, WOR_PAIR, 7, 1, "King can not move in this way");
         return false;
     }
     return true;
 }
-
 
 // taking the movement and checking legal moves depending on the piece
 bool check_legal(char from[], char to[]) {
     switch (get_name(from)) {
         case 'p':
             return check_pawn(from, to) && check_path(from, to);
-            break;
         case 'k':
             return check_king(from, to);
-            break;
         case 'q':
             return check_queen(from, to) && check_path(from, to);
-            break;
         case 'b':
             return check_bishop(from, to) && check_path(from, to);
-            break;
         case 'n':
             return check_knight(from, to);
-            break;
         case 'r':
             return check_rook(from, to) && check_path(from, to);
-            break;
     }
-
-    return true;
+    return false;
 }
